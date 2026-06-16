@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Todo App with LocalStorage</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    #todo-form {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    #todo-input {
+      padding: 10px;
+      font-size: 16px;
+      width: 250px;
+    }
+    #add-btn {
+      padding: 10px;
+      font-size: 16px;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      max-width: 400px;
+      margin: auto;
+    }
+    li {
+      background: #fff;
+      padding: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .done {
+      text-decoration: line-through;
+      color: gray;
+    }
+    button {
+      margin-left: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Todo App</h1>
+  <div id="todo-form">
+    <input type="text" id="todo-input" placeholder="Enter a task...">
+    <button id="add-btn">Add</button>
+  </div>
+  <ul id="todo-list"></ul>
+
+  <script>
+    const input = document.getElementById('todo-input');
+    const addBtn = document.getElementById('add-btn');
+    const todoList = document.getElementById('todo-list');
+
+    // Load todos from localStorage
+    let todos = JSON.parse(localStorage.getItem('todos')) || [];
+    renderTodos();
+
+    addBtn.addEventListener('click', addTodo);
+    input.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') addTodo();
+    });
+
+    function addTodo() {
+      const task = input.value.trim();
+      if (task === '') return;
+
+      todos.push({ text: task, done: false });
+      saveTodos();
+      renderTodos();
+      input.value = '';
+    }
+
+    function toggleDone(index) {
+      todos[index].done = !todos[index].done;
+      saveTodos();
+      renderTodos();
+    }
+
+    function deleteTodo(index) {
+      todos.splice(index, 1);
+      saveTodos();
+      renderTodos();
+    }
+
+    function saveTodos() {
+      localStorage.setItem('todos', JSON.stringify(todos));
+    }
+
+    function renderTodos() {
+      todoList.innerHTML = '';
+      todos.forEach((todo, index) => {
+        const li = document.createElement('li');
+        const span = document.createElement('span');
+        span.textContent = todo.text;
+        if (todo.done) span.classList.add('done');
+
+        const doneBtn = document.createElement('button');
+        doneBtn.textContent = 'Done';
+        doneBtn.onclick = () => toggleDone(index);
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Delete';
+        delBtn.onclick = () => deleteTodo(index);
+
+        li.appendChild(span);
+        li.appendChild(doneBtn);
+        li.appendChild(delBtn);
+        todoList.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
